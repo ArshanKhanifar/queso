@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+/// @title ChainAliases
+/// @notice This contract contains aliases as constant variables to avoid using magic strings.
 contract ChainAliases {
     string constant ethereum = "ethereum";
     string constant sepolia = "sepolia";

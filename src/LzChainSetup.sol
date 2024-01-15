@@ -6,32 +6,49 @@ import {ILayerZeroEndpoint} from "LayerZero/interfaces/ILayerZeroEndpoint.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {console2} from "forge-std/console2.sol";
 
+/// @title MockEndpoint
+/// @notice This contract is used to mock LayerZero endpoints
 abstract contract MockEndpoint is ILayerZeroEndpoint {
     address public defaultReceiveLibraryAddress;
 }
 
+/// @title LzChainSetup
+/// @notice This contract is used to setup info for chains supported by LayerZero
 contract LzChainSetup is BaseChainSetup {
+    /// @title lzEndpointLookup
+    /// @notice This mapping is used to lookup the LayerZero endpoint for a given chain alias
     mapping(string => MockEndpoint) lzEndpointLookup;
+    /// @title lzIdLookup
+    /// @notice This mapping is used to lookup the LayerZero chain id for a given chain alias
     mapping(string => uint16) lzIdLookup;
 
-    function configureLzChain(
-        string memory chain,
-        uint16 lzId,
-        address lzEndpoint
-    ) internal {
+    /// @title configureLzChain
+    /// @notice This function is used to populate the lzEndpointLookup and lzIdLookup mappings
+    /// @param chain The chain alias
+    /// @param lzId The LayerZero chain id
+    /// @param lzEndpoint The LayerZero endpoint address
+    function configureLzChain(string memory chain, uint16 lzId, address lzEndpoint) internal {
         // from here: https://layerzero.gitbook.io/docs/technical-reference/mainnet/supported-chain-ids
         lzEndpointLookup[chain] = MockEndpoint(lzEndpoint);
         vm.label(lzEndpoint, string.concat("lz_endpoint_", chain));
         lzIdLookup[chain] = lzId;
     }
 
+    /// @title startRecordingLzMessages
+    /// @notice This function is used to start recording the logs emitted by LayerZero, used to emulate cross-chain
+    /// message delivery. Use this function before calling deliverLzMessageAtDestination.
     function startRecordingLzMessages() public {
         vm.recordLogs();
     }
 
+    /// @title getPacket
+    /// @notice This function is used to get the packet emitted by LayerZero, which then gets processed by the
+    /// extractLzInfo and extractAppPayload functions.
+    /// @param src The source of the packet
+    /// @return packet The packet emitted by LayerZero
     function getPacket(string memory src) private returns (bytes memory) {
         VmSafe.Log[] memory entries = vm.getRecordedLogs();
-        for (uint i = 0; i < entries.length; i++) {
+        for (uint256 i = 0; i < entries.length; i++) {
             if (entries[i].topics[0] == keccak256("Packet(bytes)")) {
                 console2.logBytes32(entries[i].topics[0]);
                 console2.logBytes(entries[i].data);
@@ -41,17 +58,10 @@ contract LzChainSetup is BaseChainSetup {
         revert(string.concat("no packet was emitted at: ", src));
     }
 
-    function extractLzInfo(
-        bytes memory packet
-    )
+
+    function extractLzInfo(bytes memory packet)
         private
-        returns (
-            uint64 nonce,
-            uint16 localChainId,
-            address sourceUa,
-            uint16 dstChainId,
-            address dstAddress
-        )
+        returns (uint64 nonce, uint16 localChainId, address sourceUa, uint16 dstChainId, address dstAddress)
     {
         assembly {
             let start := add(packet, 64)
@@ -63,39 +73,24 @@ contract LzChainSetup is BaseChainSetup {
         }
     }
 
-    function extractAppPayload(
-        bytes memory packet
-    ) private returns (bytes memory payload) {
-        uint start = 64 + 52;
-        uint payloadLength = packet.length - start;
+    function extractAppPayload(bytes memory packet) private returns (bytes memory payload) {
+        uint256 start = 64 + 52;
+        uint256 payloadLength = packet.length - start;
         payload = new bytes(payloadLength);
         assembly {
             let payloadPtr := add(packet, start)
             let destPointer := add(payload, 32)
-            for {
-                let i := 32
-            } lt(i, payloadLength) {
-                i := add(i, 32)
-            } {
+            for { let i := 32 } lt(i, payloadLength) { i := add(i, 32) } {
                 mstore(destPointer, mload(add(payloadPtr, i)))
                 destPointer := add(destPointer, 32)
             }
         }
     }
 
-    function deliverLzMessageAtDestination(
-        string memory src,
-        string memory dst,
-        uint gasLimit
-    ) public {
+    function deliverLzMessageAtDestination(string memory src, string memory dst, uint256 gasLimit) public {
         bytes memory packet = getPacket(src);
-        (
-            uint64 nonce,
-            uint16 localChainId,
-            address sourceUa,
-            uint16 dstChainId,
-            address dstAddress
-        ) = extractLzInfo(packet);
+        (uint64 nonce, uint16 localChainId, address sourceUa, uint16 dstChainId, address dstAddress) =
+            extractLzInfo(packet);
         bytes memory payload = extractAppPayload(packet);
         receiveLzMessage(src, dst, sourceUa, dstAddress, gasLimit, payload);
     }
@@ -105,7 +100,7 @@ contract LzChainSetup is BaseChainSetup {
         string memory dstChain,
         address srcUa,
         address dstUa,
-        uint gasLimit,
+        uint256 gasLimit,
         bytes memory payload
     ) public {
         switchTo(dstChain);

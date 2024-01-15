@@ -1,4 +1,4 @@
-# Forge Toolkit
+# Queso 🧀
 
 This repository contains suite of utility solidity smart contracts that
 facilitate setting up scripts and tests. It's meant for reusability of
