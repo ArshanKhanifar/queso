@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import {LzChainSetup} from "./LzChainSetup.sol";
 
+/// @title UsdcAddress
+/// @notice This contract is used to store the USDC address on different chains
 library UsdcAddress {
     address constant ethereum = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address constant arbitrum = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
@@ -11,38 +13,71 @@ library UsdcAddress {
     address constant avalanche = 0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E;
 }
 
+/// @title SgEthAddress
+/// @notice This contract is used to store the SG_ETH address on different chains
+/// refer to https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/mainnet
 library SgEthAddress {
     address constant ethereum = 0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56;
     address constant arbitrum = 0x915A55e36A01285A14f05dE6e81ED9cE89772f8e;
     address constant optimism = 0xd22363e3762cA7339569F3d33EADe20127D5F98C;
 }
 
+/// @title SgChainsInfo
+/// @notice This contract is used to store the stargate chain info, it contains lookup table for
+/// stargate router, bridge, composer and pool id's
 contract SgChainsInfo is LzChainSetup {
+    /// @title sgRouterLookup
+    /// @notice This mapping is used to store the stargate router address for different chains
     mapping(string => address) sgRouterLookup;
+    /// @title sgBridgeLookup
+    /// @notice This mapping is used to store the stargate bridge address for different chains
     mapping(string => address) sgBridgeLookup;
+    /// @title sgComposerLookup
+    /// @notice This mapping is used to store the stargate composer address for different chains
     mapping(string => address) sgComposerLookup;
+    /// @title sgPoolIdLookup
+    /// @notice This mapping is used to store the stargate pool id for different chains
     mapping(string => mapping(address => uint120)) sgPoolIdLookup;
+    /// @title TYPE_SWAP_REMOTE
+    /// @notice This constant is used to store the SWAP_REMOTE function type, refer to
+    /// https://stargateprotocol.gitbook.io/stargate/developers/function-types
     uint8 internal constant TYPE_SWAP_REMOTE = 1;
 
-    address constant STARGATE_COMMON_COMPOSER =
-        0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9;
+    /// @title STARGATE_COMMON_COMPOSER
+    /// @notice This constant is used to store the common composer address for different chains
+    address constant STARGATE_COMMON_COMPOSER = 0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9;
 
     // from here https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/mainnet
+    /// @title addBridge
+    /// @notice This function is used to populate the stargate bridge lookup table
+    /// @param chain The chain alias, as defined in foundry.toml
+    /// @param _address The bridge address
     function addBridge(string memory chain, address _address) private {
         sgBridgeLookup[chain] = _address;
         vm.label(_address, string.concat("stargate_bridge_", chain));
     }
 
+    /// @title addRouter
+    /// @notice This function is used to populate the stargate router lookup table
+    /// @param chain The chain alias, as defined in foundry.toml
+    /// @param _address The router address
     function addRouter(string memory chain, address _address) private {
         sgRouterLookup[chain] = _address;
         vm.label(_address, string.concat("stargate_router_", chain));
     }
 
+    /// @title addComposer
+    /// @notice This function is used to populate the stargate composer lookup table
+    /// @param chain The chain alias, as defined in foundry.toml
+    /// @param _address The composer address
     function addComposer(string memory chain, address _address) private {
         sgComposerLookup[chain] = _address;
         vm.label(_address, string.concat("stargate_composer_", chain));
     }
 
+    /// @title setupSgChainInfo
+    /// @notice This function is used to populate the stargate chain info lookup tables, call this in
+    /// the setup of your tests and scripts, so you can benefit from the lookup tables.
     function setupSgChainInfo() public {
         addRouter("ethereum", 0x8731d54E9D02c286767d56ac03e8037C07e01e98);
         addRouter("avalanche", 0x45A01E4e04F14f7A4a6702c74187c5F6222033cd);

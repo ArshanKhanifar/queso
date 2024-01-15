@@ -58,7 +58,16 @@ contract LzChainSetup is BaseChainSetup {
         revert(string.concat("no packet was emitted at: ", src));
     }
 
-
+    /// @title extractLzInfo
+    /// @notice This function is used to extract the messages info from the packet emitted by LayerZero's stack
+    /// it's needed to deliver it to the destination chain
+    /// @param packet The app packet, this is a subset of the packet emitted by LayerZero
+    /// @return nonce The nonce of the message
+    /// @return localChainId The chain id of the source chain
+    /// @return sourceUa The source user application
+    /// @return dstChainId The layer zero chain id of the destination chain, you can look up their chain id's here:
+    /// https://layerzero.gitbook.io/docs/technical-reference/mainnet/supported-chain-ids
+    /// @return dstAddress The destination address
     function extractLzInfo(bytes memory packet)
         private
         returns (uint64 nonce, uint16 localChainId, address sourceUa, uint16 dstChainId, address dstAddress)
@@ -73,6 +82,11 @@ contract LzChainSetup is BaseChainSetup {
         }
     }
 
+    /// @title extractAppPayload
+    /// @notice This function is used to extract the payload from the packet emitted by LayerZero's stack.
+    /// @param packet The raw packet emitted by LayerZero, this is retrieved from the logs emitted by LayerZero
+    /// on the source chain
+    /// @return payload The app payload
     function extractAppPayload(bytes memory packet) private returns (bytes memory payload) {
         uint256 start = 64 + 52;
         uint256 payloadLength = packet.length - start;
@@ -87,6 +101,12 @@ contract LzChainSetup is BaseChainSetup {
         }
     }
 
+    /// @title deliverLzMessageAtDestination
+    /// @notice This function is used to deliver a message to the destination chain, it's used to emulate cross-chain
+    /// message delivery. Use this function after calling startRecordingLzMessages.
+    /// @param src The source chain alias
+    /// @param dst The destination chain alias
+    /// @param gasLimit The gas limit to use when delivering the message
     function deliverLzMessageAtDestination(string memory src, string memory dst, uint256 gasLimit) public {
         bytes memory packet = getPacket(src);
         (uint64 nonce, uint16 localChainId, address sourceUa, uint16 dstChainId, address dstAddress) =
@@ -95,6 +115,15 @@ contract LzChainSetup is BaseChainSetup {
         receiveLzMessage(src, dst, sourceUa, dstAddress, gasLimit, payload);
     }
 
+    /// @title receiveLzMessage
+    /// @notice This function is used to deliver a message to the destination chain, it's called
+    /// by deliverLzMessageAtDestination
+    /// @param srcChain The source chain alias
+    /// @param dstChain The destination chain alias
+    /// @param srcUa The source user application, extracted from the packet
+    /// @param dstUa The destination user application, extracted from the packet
+    /// @param gasLimit The gas limit to use when delivering the message
+    /// @param payload The payload to deliver
     function receiveLzMessage(
         string memory srcChain,
         string memory dstChain,
@@ -102,7 +131,7 @@ contract LzChainSetup is BaseChainSetup {
         address dstUa,
         uint256 gasLimit,
         bytes memory payload
-    ) public {
+    ) private {
         switchTo(dstChain);
 
         MockEndpoint dstEndpoint = lzEndpointLookup[dstChain];
