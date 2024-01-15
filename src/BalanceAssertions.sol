@@ -9,7 +9,6 @@ import {Test} from "forge-std/Test.sol";
 /// @notice This contract is used to assert balances of tokens and ETH
 /// @dev This contract is used by the tests
 contract BalanceAssertions is BaseChainSetup, Test {
-    /// @title assertTokenBalanceEq
     /// @notice Asserts that the balance of a token is equal to the given amount
     /// @param chain The chain to switch to, this is an alias according to what's
     /// defined in foundry.toml
@@ -21,7 +20,6 @@ contract BalanceAssertions is BaseChainSetup, Test {
         assertEq(ERC20(token).balanceOf(user), amount);
     }
 
-    /// @title assertWethBalanceEq
     /// @notice Asserts that the balance of WETH is equal to the given amount
     /// @param chain The chain to switch to, this is an alias according to what's
     /// defined in foundry.toml
@@ -31,7 +29,6 @@ contract BalanceAssertions is BaseChainSetup, Test {
         assertTokenBalanceEq(chain, user, wethLookup[chain], amount);
     }
 
-    /// @title assertEthBalanceEq
     /// @notice Asserts that the balance of ETH is equal to the given amount
     /// @param chain The chain to switch to, this is an alias according to what's
     /// defined in foundry.toml
@@ -41,7 +38,6 @@ contract BalanceAssertions is BaseChainSetup, Test {
         assertEq(ethBalance(chain, user), amount);
     }
 
-    /// @title ethBalance
     /// @notice Switches to the given chain and returns the balance of ETH for the given user on that chain
     /// @param chain The chain to switch to, this is an alias according to what's
     /// defined in foundry.toml

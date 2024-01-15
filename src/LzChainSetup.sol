@@ -15,14 +15,11 @@ abstract contract MockEndpoint is ILayerZeroEndpoint {
 /// @title LzChainSetup
 /// @notice This contract is used to setup info for chains supported by LayerZero
 contract LzChainSetup is BaseChainSetup {
-    /// @title lzEndpointLookup
     /// @notice This mapping is used to lookup the LayerZero endpoint for a given chain alias
     mapping(string => MockEndpoint) lzEndpointLookup;
-    /// @title lzIdLookup
     /// @notice This mapping is used to lookup the LayerZero chain id for a given chain alias
     mapping(string => uint16) lzIdLookup;
 
-    /// @title configureLzChain
     /// @notice This function is used to populate the lzEndpointLookup and lzIdLookup mappings
     /// @param chain The chain alias
     /// @param lzId The LayerZero chain id
@@ -34,14 +31,12 @@ contract LzChainSetup is BaseChainSetup {
         lzIdLookup[chain] = lzId;
     }
 
-    /// @title startRecordingLzMessages
     /// @notice This function is used to start recording the logs emitted by LayerZero, used to emulate cross-chain
     /// message delivery. Use this function before calling deliverLzMessageAtDestination.
     function startRecordingLzMessages() public {
         vm.recordLogs();
     }
 
-    /// @title getPacket
     /// @notice This function is used to get the packet emitted by LayerZero, which then gets processed by the
     /// extractLzInfo and extractAppPayload functions.
     /// @param src The source of the packet
@@ -58,7 +53,6 @@ contract LzChainSetup is BaseChainSetup {
         revert(string.concat("no packet was emitted at: ", src));
     }
 
-    /// @title extractLzInfo
     /// @notice This function is used to extract the messages info from the packet emitted by LayerZero's stack
     /// it's needed to deliver it to the destination chain
     /// @param packet The app packet, this is a subset of the packet emitted by LayerZero
@@ -82,7 +76,6 @@ contract LzChainSetup is BaseChainSetup {
         }
     }
 
-    /// @title extractAppPayload
     /// @notice This function is used to extract the payload from the packet emitted by LayerZero's stack.
     /// @param packet The raw packet emitted by LayerZero, this is retrieved from the logs emitted by LayerZero
     /// on the source chain
@@ -101,7 +94,6 @@ contract LzChainSetup is BaseChainSetup {
         }
     }
 
-    /// @title deliverLzMessageAtDestination
     /// @notice This function is used to deliver a message to the destination chain, it's used to emulate cross-chain
     /// message delivery. Use this function after calling startRecordingLzMessages.
     /// @param src The source chain alias
@@ -115,7 +107,6 @@ contract LzChainSetup is BaseChainSetup {
         receiveLzMessage(src, dst, sourceUa, dstAddress, gasLimit, payload);
     }
 
-    /// @title receiveLzMessage
     /// @notice This function is used to deliver a message to the destination chain, it's called
     /// by deliverLzMessageAtDestination
     /// @param srcChain The source chain alias

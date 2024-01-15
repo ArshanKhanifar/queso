@@ -26,29 +26,22 @@ library SgEthAddress {
 /// @notice This contract is used to store the stargate chain info, it contains lookup table for
 /// stargate router, bridge, composer and pool id's
 contract SgChainsInfo is LzChainSetup {
-    /// @title sgRouterLookup
     /// @notice This mapping is used to store the stargate router address for different chains
     mapping(string => address) sgRouterLookup;
-    /// @title sgBridgeLookup
     /// @notice This mapping is used to store the stargate bridge address for different chains
     mapping(string => address) sgBridgeLookup;
-    /// @title sgComposerLookup
     /// @notice This mapping is used to store the stargate composer address for different chains
     mapping(string => address) sgComposerLookup;
-    /// @title sgPoolIdLookup
     /// @notice This mapping is used to store the stargate pool id for different chains
     mapping(string => mapping(address => uint120)) sgPoolIdLookup;
-    /// @title TYPE_SWAP_REMOTE
     /// @notice This constant is used to store the SWAP_REMOTE function type, refer to
     /// https://stargateprotocol.gitbook.io/stargate/developers/function-types
     uint8 internal constant TYPE_SWAP_REMOTE = 1;
 
-    /// @title STARGATE_COMMON_COMPOSER
     /// @notice This constant is used to store the common composer address for different chains
     address constant STARGATE_COMMON_COMPOSER = 0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9;
 
     // from here https://stargateprotocol.gitbook.io/stargate/developers/contract-addresses/mainnet
-    /// @title addBridge
     /// @notice This function is used to populate the stargate bridge lookup table
     /// @param chain The chain alias, as defined in foundry.toml
     /// @param _address The bridge address
@@ -57,7 +50,6 @@ contract SgChainsInfo is LzChainSetup {
         vm.label(_address, string.concat("stargate_bridge_", chain));
     }
 
-    /// @title addRouter
     /// @notice This function is used to populate the stargate router lookup table
     /// @param chain The chain alias, as defined in foundry.toml
     /// @param _address The router address
@@ -66,7 +58,6 @@ contract SgChainsInfo is LzChainSetup {
         vm.label(_address, string.concat("stargate_router_", chain));
     }
 
-    /// @title addComposer
     /// @notice This function is used to populate the stargate composer lookup table
     /// @param chain The chain alias, as defined in foundry.toml
     /// @param _address The composer address
@@ -75,7 +66,6 @@ contract SgChainsInfo is LzChainSetup {
         vm.label(_address, string.concat("stargate_composer_", chain));
     }
 
-    /// @title setupSgChainInfo
     /// @notice This function is used to populate the stargate chain info lookup tables, call this in
     /// the setup of your tests and scripts, so you can benefit from the lookup tables.
     function setupSgChainInfo() public {

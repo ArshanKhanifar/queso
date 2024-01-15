@@ -8,7 +8,6 @@ import {BaseChainSetup} from "./BaseChainSetup.sol";
 contract ChainsInfo is BaseChainSetup {
     address OP_STACK_WETH = 0x4200000000000000000000000000000000000006;
 
-    /// @title setupChainInfo
     /// @notice This function is used to populate the chain info for various chains, use it in the beginning of
     /// your scripts and test cases to populate the chain info lookups.
     function setupChainInfo() public {
