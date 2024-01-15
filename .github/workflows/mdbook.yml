@@ -28,19 +28,22 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    env:
-      MDBOOK_VERSION: 0.4.7
     steps:
       - uses: actions/checkout@v4
-      - name: Install mdBook
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Generate docs
         run: |
-          wget -qO- https://github.com/rust-lang/mdBook/releases/download/v${MDBOOK_VERSION}/mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz | tar xvz
-          sudo mv mdbook /usr/local/bin
+          forge doc --build
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
-      - name: Build with mdBook
-        run: mdbook build docs
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
