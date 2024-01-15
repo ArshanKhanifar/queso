@@ -68,7 +68,7 @@ foundry 's [documentation](https://book.getfoundry.sh/cheatcodes/start-prank).
 ### `configureChain`
 
 For populating the lookups shown above. They get used in the [ChainsInfo](src/ChainsInfo.sol)
-contract.
+contract. 
 
 ### `switchTo`
 
