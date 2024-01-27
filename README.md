@@ -6,7 +6,7 @@ a lot of utility functions.
 
 ## `BaseChainSetup.sol`
 
-This file is the base class. It has the following lookups:
+This file is the base class. It has the following lookup tables:
 
 ```
     mapping(string => uint256) forkLookup;
